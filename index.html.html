@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contrôle des Pompes et Réservoirs</title>
+    <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            background: #007BFF;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .section {
+            background: white;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .reservoir {
+            display: inline-block;
+            width: 30%;
+            min-width: 200px;
+            padding: 10px;
+            background: #e3f2fd;
+            border-radius: 10px;
+            margin: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .reservoir span {
+            font-weight: bold;
+            font-size: 20px;
+            color: #007BFF;
+        }
+        .pump-control {
+            width: 30%;
+            min-width: 200px;
+            padding: 10px;
+            margin: 10px;
+            border-radius: 10px;
+            background: #ffffff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .status {
+            font-weight: bold;
+            color: green;
+        }
+        .btn {
+            padding: 10px 15px;
+            margin: 5px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn-on {
+            background: #28a745;
+            color: white;
+        }
+        .btn-off {
+            background: #dc3545;
+            color: white;
+        }
+        .btn:hover {
+            opacity: 0.8;
+        }
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: #007BFF;
+        }
+        .login-box {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+            text-align: center;
+        }
+        .login-box input {
+            padding: 10px;
+            margin: 10px;
+            width: 80%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .login-box button {
+            padding: 10px;
+            width: 80%;
+            background: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Écran de connexion -->
+    <div class="login-container" id="loginScreen">
+        <div class="login-box">
+            <h2>Connexion</h2>
+            <input type="password" id="passwordInput" placeholder="Entrez le mot de passe">
+            <button onclick="checkPassword()">Se connecter</button>
+        </div>
+    </div>
+
+    <!-- Interface principale (cachée au départ) -->
+    <div id="mainApp" style="display: none;">
+        <h1>Gestion des Pompes et Niveaux de Réservoirs</h1>
+
+        <div class="section">
+            <h2>Niveaux des Réservoirs</h2>
+            <div class="container">
+                <div class="reservoir">
+                    <h3>Réservoir 1</h3>
+                    <p><span id="reservoir1">--%</span></p>
+                </div>
+                <div class="reservoir">
+                    <h3>Réservoir 2</h3>
+                    <p><span id="reservoir2">--%</span></p>
+                </div>
+                <div class="reservoir">
+                    <h3>Réservoir 3</h3>
+                    <p><span id="reservoir3">--%</span></p>
+                </div>
+            </div>
+        </div>
+
+        <h2>Contrôle des Pompes</h2>
+        <div class="container">
+            <div class="pump-control">
+                <h3>Pompe 1</h3>
+                <button class="btn btn-on" onclick="envoyerCommande('POMPE1_ON')">Allumer</button>
+                <button class="btn btn-off" onclick="envoyerCommande('POMPE1_OFF')">Éteindre</button>
+            </div>
+            <div class="pump-control">
+                <h3>Pompe 2</h3>
+                <button class="btn btn-on" onclick="envoyerCommande('POMPE2_ON')">Allumer</button>
+                <button class="btn btn-off" onclick="envoyerCommande('POMPE2_OFF')">Éteindre</button>
+            </div>
+            <div class="pump-control">
+                <h3>Pompe 3</h3>
+                <button class="btn btn-on" onclick="envoyerCommande('POMPE3_ON')">Allumer</button>
+                <button class="btn btn-off" onclick="envoyerCommande('POMPE3_OFF')">Éteindre</button>
+            </div>
+            <div class="pump-control">
+                <h3>Pompe 4</h3>
+                <button class="btn btn-on" onclick="envoyerCommande('POMPE4_ON')">Allumer</button>
+                <button class="btn btn-off" onclick="envoyerCommande('POMPE4_OFF')">Éteindre</button>
+            </div>
+            <div class="pump-control">
+                <h3>Pompe 5</h3>
+                <button class="btn btn-on" onclick="envoyerCommande('POMPE5_ON')">Allumer</button>
+                <button class="btn btn-off" onclick="envoyerCommande('POMPE5_OFF')">Éteindre</button>
+            </div>
+            <div class="pump-control">
+                <h3>Pompe 6</h3>
+                <button class="btn btn-on" onclick="envoyerCommande('POMPE6_ON')">Allumer</button>
+                <button class="btn btn-off" onclick="envoyerCommande('POMPE6_OFF')">Éteindre</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const PASSWORD = "ainabessa"; 
+
+        function checkPassword() {
+            let enteredPassword = document.getElementById("passwordInput").value;
+            if (enteredPassword === PASSWORD) {
+                document.getElementById("loginScreen").style.display = "none";
+                document.getElementById("mainApp").style.display = "block";
+            } else {
+                alert("Mot de passe incorrect !");
+            }
+        }
+
+        function envoyerCommande(commande) {
+            console.log("Commande envoyée: " + commande);
+        }
+    </script>
+</body>
+</html>
