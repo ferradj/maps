@@ -1,0 +1,26 @@
+body {
+	font-family: Arial, sans-serif;
+	margin-top: 50px;
+	text-align: center;
+}
+
+button {
+	border-style: none;
+	cursor: pointer;
+	font-size: 20px;
+	margin: 10px;
+	padding-bottom: 10px;
+	padding-left: 20px;
+	padding-right: 20px;
+	padding-top: 10px;
+}
+
+#ledOn {
+	background-color: green;
+	color: white;
+}
+
+#ledOff {
+	background-color: red;
+	color: white;
+}
